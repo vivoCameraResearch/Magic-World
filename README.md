@@ -13,7 +13,6 @@
 We introduce **MagicWorld**, an interactive video world model that supports exploring a dynamic scene created from a single scene
 image through continuous keyboard actions, while maintaining structural and temporal consistency. MagicWorld generates action-driven
 point clouds from user inputs (W, A, S, D) to provide geometric constraints for stable viewpoint transitions.
-![method](asset/magicworld.png)
 
 ## 📣 News 
 - **`2026/02/10`**: We open-source the MagicWorld v1 codebase, including training and inference scripts.
