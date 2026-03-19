@@ -227,28 +227,28 @@ if __name__ == "__main__":
     main()
 
 """
-python asset/gen_traj.py \
+python action2traj.py \
   --dirs w,w,w,w \
   --output_dir asset/bench/W \
   --segment_frames 33 \
   --step 0.1 \
   --angle_deg 10
 
-python asset/gen_traj.py \
+python action2traj.py \
   --dirs d,d,d,d \
   --output_dir asset/bench/WD_new \
   --segment_frames 100 \
   --step 1 \
   --angle_deg 50
 
-python asset/gen_traj.py \
+python action2traj.py \
   --dirs s,s,s,s \
   --output_dir asset/bench/S \
   --segment_frames 33 \
   --step 0.15 \
   --angle_deg 10
 
-python asset/gen_traj.py \
+python action2traj.py \
   --dirs s,a,w,D \
   --output_dir asset/bench/S_A_W_D \
   --segment_frames 33 \

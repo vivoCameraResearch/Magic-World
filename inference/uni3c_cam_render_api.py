@@ -1,4 +1,4 @@
-# uni3c_cam_render_api.py
+# uni3c_cam_render.py
 import os
 import sys
 sys.path.insert(0, "the path of Uni3C-main")
@@ -97,11 +97,11 @@ _MODELS = {}
 
 def get_models(device):
     if device not in _MODELS:
-        print("[cam_render_api] Init depth model (singleton)")
+        print("[cam_render] Init depth model (singleton)")
         depth_model, depth_transform = depth_pro.create_model_and_transforms(device=device)
         depth_model = depth_model.eval()  # 统一FP32更稳
 
-        print("[cam_render_api] Init matting/seg model (singleton)")
+        print("[cam_render] Init matting/seg model (singleton)")
         from huggingface_hub import hf_hub_download
         seg_net = TracerUniversalB7(
             device=device, batch_size=1,
@@ -151,7 +151,7 @@ def render_from_image_and_traj(
     # 与原脚本一致的分辨率选择逻辑（当前固定到 hw_list[6]）
     hw_list = [[480, 768], [512, 720], [608, 608], [720, 512], [768, 480], [720, 1280], [512, 896], [480, 832]]
     height, width = hw_list[7]
-    print(f"[cam_render_api] Resolution: {h_origin}x{w_origin} -> {height}x{width}")
+    print(f"[cam_render] Resolution: {h_origin}x{w_origin} -> {height}x{width}")
     image = image.resize((width, height), Image.Resampling.BICUBIC)
     validation_image = ToTensor()(image)[None]  # [1,c,h,w], 0~1
 
@@ -172,11 +172,11 @@ def render_from_image_and_traj(
     c2ws = w2cs.inverse()                           # [F,4,4]
 
     # === 3) 深度模型 & 前景分割 ===
-    print("[cam_render_api] Init depth model")
+    print("[cam_render] Init depth model")
     depth_model, depth_transform = depth_pro.create_model_and_transforms(device=device)
     depth_model = depth_model.eval()
 
-    print("[cam_render_api] Init matting/seg model")
+    print("[cam_render] Init matting/seg model")
     from huggingface_hub import hf_hub_download
     seg_net = TracerUniversalB7(
         device=device, batch_size=1,
@@ -261,7 +261,7 @@ def render_from_image_and_traj(
     export_to_video(render_video, os.path.join(output_path, "render.mp4"), fps=fps)
     export_to_video(mask_video, os.path.join(output_path, "render_mask.mp4"), fps=fps)
 
-    print(f"[cam_render_api] Done. Saved to: {output_path}")
+    print(f"[cam_render] Done. Saved to: {output_path}")
 
     # === 新增：返回帧序列 ===
     return render_video, mask_video

@@ -20,9 +20,8 @@ from einops import rearrange
 from PIL import Image
 from transformers import T5Tokenizer
 
-from ..models import (AutoencoderKLWan, AutoTokenizer, CLIPModel,
-                              WanT5EncoderModel)
-from ..models.wan_transformer3d_magicworld_v1 import WanTransformer3DModel
+from ..models import (AutoencoderKLWan, AutoTokenizer, CLIPModel,WanT5EncoderModel)
+from ..models.wan_transformer3d_magicworld_base import WanTransformer3DModel
 from ..utils.fm_solvers import (FlowDPMSolverMultistepScheduler,
                                 get_sampling_sigmas)
 from ..utils.fm_solvers_unipc import FlowUniPCMultistepScheduler
@@ -134,107 +133,6 @@ def resize_mask(mask, latent, process_first_frame_only=True):
         )
     return resized_mask
 
-def _pool_latent_frames(frames: torch.Tensor, mode: str = "mean") -> torch.Tensor:
-    """
-    对帧 latent 做空间池化，得到向量特征。
-    输入 frames: [N, C, H, W] 或 [B, F, C, H, W]（内部自动 reshape）
-    输出 feats:  [N, C]
-    """
-    if frames.dim() == 5:
-        N = frames.shape[0] * frames.shape[1]
-        x = frames.reshape(N, *frames.shape[2:])  # [N, C, H, W]
-    elif frames.dim() == 4:
-        x = frames
-    else:
-        raise RuntimeError(f"Unsupported frames shape {tuple(frames.shape)}")
-
-    if mode == "mean":
-        feats = x.mean(dim=(2, 3))                          # [N, C]
-    elif mode == "max":
-        feats = F.adaptive_max_pool2d(x, (1, 1)).squeeze(-1).squeeze(-1)  # [N, C]
-    elif mode == "avgmax":
-        avg = x.mean(dim=(2, 3))
-        mx  = F.adaptive_max_pool2d(x, (1, 1)).squeeze(-1).squeeze(-1)
-        feats = 0.5 * (avg + mx)
-    else:
-        raise ValueError(f"Unsupported cache_pool='{mode}'")
-    return feats
-
-def _normalize_feats(feats: torch.Tensor, eps: float = 1e-6) -> torch.Tensor:
-    return feats / (feats.norm(dim=-1, keepdim=True) + eps)
-
-# -------- 历史缓存（list 形式，存 5D）相关 --------
-def _append_cache_from_pred_latent(
-    cache_list: List[torch.Tensor],
-    pred_latent: torch.Tensor,
-    detach: bool = True
-) -> None:
-    """
-    将本轮的预测 latent 追加到缓存列表中。只保存 5D 帧，不改维度。
-    - pred_latent: [B, F, C, H, W]
-    - cache_list:  List[Tensor([B, F, C, H, W])]
-    """
-    assert pred_latent.dim() == 5, f"expect [B,F,C,H,W], got {pred_latent.shape}"
-    frames = pred_latent.detach() if detach else pred_latent
-    cache_list.append(frames)
-
-def _pack_cache_list(cache_list: List[torch.Tensor]) -> Optional[torch.Tensor]:
-    """
-    将 List[[B, F_i, C, H, W]] 沿着帧维度 dim=1 拼接成一个整体缓存：
-    - return: [B, F_total, C, H, W] 或者 None（当列表为空）
-    """
-    if not cache_list:
-        return None
-    B, _, C, H, W = cache_list[0].shape
-    device, dtype = cache_list[0].device, cache_list[0].dtype
-    for t in cache_list:
-        assert t.dim() == 5 and t.shape[0] == B and t.shape[2] == C and t.shape[3] == H and t.shape[4] == W, \
-            f"Incompatible cache tensor: expect [B,*,C,H,W], got {t.shape}"
-        assert t.device == device and t.dtype == dtype, "All cache tensors must share device/dtype"
-    return torch.cat(cache_list, dim=1)  # [B, sum(F_i), C, H, W]
-
-def _select_topk_from_cache_list(
-    query_first_latent: torch.Tensor,     # [B, Fq, C, H, W]（只用首帧）
-    cache_list: List[torch.Tensor],       # List[[B, F_i, C, H, W]]
-    topk: int,
-    cache_pool: str = "mean"
-) -> torch.Tensor:
-    """
-    从缓存列表中选 Top-K 帧，返回 5D [B, K, C, H, W]。
-    若无缓存或 K=0，返回 [B, 0, C, H, W]（空张量，便于无感知拼接）。
-    """
-    assert query_first_latent.dim() == 5
-    B, Fq, C, H, W = query_first_latent.shape
-
-    def _empty_like():
-        return query_first_latent.new_empty((B, 0, C, H, W))
-
-    if (not cache_list) or (topk <= 0):
-        return _empty_like()
-
-    cache_frames = _pack_cache_list(cache_list)  # [B, F_total, C, H, W] 或 None
-    if cache_frames is None or cache_frames.size(1) == 0:
-        return _empty_like()
-
-    # 查询：首帧 -> [B,C,H,W] -> 池化 [B,C]
-    q = query_first_latent[:, 0, ...]  # [B,C,H,W]
-    q_feats = _normalize_feats(_pool_latent_frames(q, mode=cache_pool))  # [B,C]
-
-    # 缓存池化到 [B, F_total, C]
-    Bc, F_total, Cc, Hc, Wc = cache_frames.shape
-    assert Bc == B and Cc == C and Hc == H and Wc == W, "cache dims mismatch"
-    cache_feats_flat = _pool_latent_frames(cache_frames, mode=cache_pool)  # [B*F_total, C]
-    cache_feats = _normalize_feats(cache_feats_flat.view(B, F_total, C))   # [B,F_total,C]
-
-    K = min(topk, F_total)
-    sim = torch.einsum("bc,bfc->bf", q_feats, cache_feats)  # [B,F_total]
-    _, idx = torch.topk(sim, k=K, dim=1)                    # [B,K]
-
-    gather_idx = idx.view(B, K, 1, 1, 1).expand(B, K, C, H, W)
-    topk_frames = torch.gather(cache_frames, dim=1, index=gather_idx)  # [B,K,C,H,W]
-    topk_frames = topk_frames.permute(0, 2, 1, 3, 4)  # -> [B, C, K, H, W]
-    return topk_frames.contiguous()
-
 
 @dataclass
 class WanPipelineOutput(BaseOutput):
@@ -288,11 +186,6 @@ class WanFunControlPipeline(DiffusionPipeline):
         self.mask_processor = VaeImageProcessor(
             vae_scale_factor=self.vae.spatial_compression_ratio, do_normalize=False, do_binarize=True, do_convert_grayscale=True
         )
-        # -------- history cache --------
-        # list of tensors, each: [B, F, C, H, W]  (NOTE: frame-major 5D)
-        self.history_cache: List[torch.Tensor] = []
-        self.history_cache_maxlen: int = 20
-
 
     def _get_t5_prompt_embeds(
         self,
@@ -445,41 +338,6 @@ class WanFunControlPipeline(DiffusionPipeline):
         if hasattr(self.scheduler, "init_noise_sigma"):
             latents = latents * self.scheduler.init_noise_sigma
         return latents
-    
-    def prepare_mask_latents(
-        self, mask, masked_image, batch_size, height, width, dtype, device, generator, do_classifier_free_guidance, noise_aug_strength
-    ):
-        # resize the mask to latents shape as we concatenate the mask to the latents
-        # we do that before converting to dtype to avoid breaking in case we're using cpu_offload
-        # and half precision
-
-        if mask is not None:
-            mask = mask.to(device=device, dtype=self.vae.dtype)
-            bs = 1
-            new_mask = []
-            for i in range(0, mask.shape[0], bs):
-                mask_bs = mask[i : i + bs]
-                mask_bs = self.vae.encode(mask_bs)[0]
-                mask_bs = mask_bs.mode()
-                new_mask.append(mask_bs)
-            mask = torch.cat(new_mask, dim = 0)
-            # mask = mask * self.vae.config.scaling_factor
-
-        if masked_image is not None:
-            masked_image = masked_image.to(device=device, dtype=self.vae.dtype)
-            bs = 1
-            new_mask_pixel_values = []
-            for i in range(0, masked_image.shape[0], bs):
-                mask_pixel_values_bs = masked_image[i : i + bs]
-                mask_pixel_values_bs = self.vae.encode(mask_pixel_values_bs)[0]
-                mask_pixel_values_bs = mask_pixel_values_bs.mode()
-                new_mask_pixel_values.append(mask_pixel_values_bs)
-            masked_image_latents = torch.cat(new_mask_pixel_values, dim = 0)
-            # masked_image_latents = masked_image_latents * self.vae.config.scaling_factor
-        else:
-            masked_image_latents = None
-
-        return mask, masked_image_latents
 
     def prepare_control_latents(
         self, control, control_image, batch_size, height, width, dtype, device, generator, do_classifier_free_guidance
@@ -615,10 +473,7 @@ class WanFunControlPipeline(DiffusionPipeline):
         negative_prompt: Optional[Union[str, List[str]]] = None,
         height: int = 480,
         width: int = 720,
-        current_step: int = 0,
         control_video: Union[torch.FloatTensor] = None,
-        render_video: Union[torch.FloatTensor] = None,
-        render_video_mask: Union[torch.FloatTensor] = None,
         control_camera_video: Union[torch.FloatTensor] = None,
         start_image: Union[torch.FloatTensor] = None,
         ref_image: Union[torch.FloatTensor] = None,
@@ -738,43 +593,6 @@ class WanFunControlPipeline(DiffusionPipeline):
         )
         if comfyui_progressbar:
             pbar.update(1)
-        
-        if render_video is not None:
-            bs, _, video_length, height, width = render_video.size()
-            
-            render_video_mask = render_video_mask[:, :1]
-            mask_condition = self.mask_processor.preprocess(rearrange(render_video_mask, "b c f h w -> (b f) c h w"), height=height, width=width) 
-            mask_condition = mask_condition.to(dtype=torch.float32)
-            mask_condition = rearrange(mask_condition, "(b f) c h w -> b c f h w", f=video_length)
-
-            masked_video = self.image_processor.preprocess(rearrange(render_video, "b c f h w -> (b f) c h w"), height=height, width=width) 
-            masked_video = masked_video.to(dtype=torch.float32)
-            masked_video = rearrange(masked_video, "(b f) c h w -> b c f h w", f=video_length)
-
-            _, masked_video_latents = self.prepare_mask_latents(
-                None,
-                masked_video,
-                batch_size,
-                height,
-                width,
-                weight_dtype,
-                device,
-                generator,
-                do_classifier_free_guidance,
-                noise_aug_strength=None,
-            )
-            
-
-            mask_condition = torch.concat(
-                [
-                    torch.repeat_interleave(mask_condition[:, :, 0:1], repeats=4, dim=2), 
-                    mask_condition[:, :, 1:]
-                ], dim=2
-            )
-            mask_condition = mask_condition.view(bs, mask_condition.shape[2] // 4, 4, height, width)
-            mask_condition = mask_condition.transpose(1, 2)
-            mask_latents = resize_mask(mask_condition, masked_video_latents, False).to(device, weight_dtype) 
-
 
         # Prepare mask latent variables
         if control_camera_video is not None:
@@ -837,28 +655,6 @@ class WanFunControlPipeline(DiffusionPipeline):
         else:
             start_image_latentes_conv_in = torch.zeros_like(latents)
 
-        
-         # -------- build y_history from cache (only when current_step != 0) --------
-        if current_step == 0:
-            y_history_input = None
-            y_history = None
-        else:
-            # start_image_latentes: [B, C, F, H, W]  -> query_first_latent expects [B, F, C, H, W]
-            if start_image is None:
-                # 没有 start_image 时无法检索，退化为不用 history
-                y_history = None
-            else:
-                query_latent = start_image_latentes.permute(0, 2, 1, 3, 4).contiguous()  # [B,F,C,H,W]
-                y_history = _select_topk_from_cache_list(
-                    query_first_latent=query_latent,
-                    cache_list=self.history_cache,
-                    topk=3,
-                    cache_pool="mean",
-                )  # -> [B, C, K, H, W]
-                # print(y_history.size())
-                # y_history = self.decode_latents(latents)
-                # y_history = self.video_processor.postprocess_video(video=y_history, output_type=output_type)
-
         # Prepare clip latent variables
         if clip_image is not None:
             clip_image = TF.to_tensor(clip_image).sub_(0.5).div_(0.5).to(device, weight_dtype) 
@@ -907,7 +703,6 @@ class WanFunControlPipeline(DiffusionPipeline):
         # 7. Denoising loop
         num_warmup_steps = max(len(timesteps) - num_inference_steps * self.scheduler.order, 0)
         self.transformer.num_inference_steps = num_inference_steps
-
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
                 self.transformer.current_steps = i
@@ -941,27 +736,12 @@ class WanFunControlPipeline(DiffusionPipeline):
                     torch.cat([clip_context] * 2) if do_classifier_free_guidance else clip_context
                 )
 
-                if y_history is not None:
-                    y_history_input = (
-                        torch.cat([y_history] * 2) if do_classifier_free_guidance else y_history
-                    )
-
                 if ref_image_latentes is not None:
                     full_ref = (
                         torch.cat([ref_image_latentes] * 2) if do_classifier_free_guidance else ref_image_latentes
                     ).to(device, weight_dtype)
                 else:
                     full_ref = None
-                
-
-                if render_video is not None:
-                    mask_input = torch.cat([mask_latents] * 2) if do_classifier_free_guidance else mask_latents
-                    masked_video_latents_input = (
-                        torch.cat([masked_video_latents] * 2) if do_classifier_free_guidance else masked_video_latents
-                    )
-
-                    y = torch.cat([start_image_latentes_conv_in_input, masked_video_latents_input], dim=1).to(device, weight_dtype) 
-
 
                 # broadcast to batch dimension in a way that's compatible with ONNX/Core ML
                 timestep = t.expand(latent_model_input.shape[0])
@@ -973,10 +753,9 @@ class WanFunControlPipeline(DiffusionPipeline):
                         context=in_prompt_embeds,
                         t=timestep,
                         seq_len=seq_len,
-                        y=y,
+                        y=control_latents_input,
                         y_camera=control_camera_latents_input, 
                         full_ref=full_ref,
-                        y_history=y_history_input,
                         clip_fea=clip_context_input,
                     )
 
@@ -1002,7 +781,6 @@ class WanFunControlPipeline(DiffusionPipeline):
                     progress_bar.update()
                 if comfyui_progressbar:
                     pbar.update(1)
-        
 
         if output_type == "numpy":
             video = self.decode_latents(latents)
@@ -1011,20 +789,6 @@ class WanFunControlPipeline(DiffusionPipeline):
             video = self.video_processor.postprocess_video(video=video, output_type=output_type)
         else:
             video = latents
-
-        # -------- append final pred latents to history cache --------
-        pred_latent_5d = latents.permute(0, 2, 1, 3, 4).contiguous()  # [B,F,C,H,W]
-        _append_cache_from_pred_latent(self.history_cache, pred_latent_5d, detach=True)
-
-        # -------- maintain maxlen=20 (pop as many as overflow) --------
-        overflow = len(self.history_cache) - self.history_cache_maxlen
-        if overflow > 0:
-            # keep the very first item (index=0), so pop from index=1
-            # pop exactly `overflow` items
-            for _ in range(overflow):
-                if len(self.history_cache) <= 1:
-                    break
-                self.history_cache.pop(1)
 
         # Offload all models
         self.maybe_free_model_hooks()
