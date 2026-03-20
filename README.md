@@ -37,6 +37,7 @@ image through continuous keyboard actions (W, A, S, D), while maintaining struct
 - ✅ Release the source code of v1
 - ✅ Release the source code of v1.5
 - [  ] Update training training configuration and instructions
+- [  ] Release the RealWM120K dataset and processing tools.
 - [  ] Release the MagicWorld v1 pretrained weights
 - [  ] Release the MagicWorld v1.5 pretrained weights
 
@@ -55,7 +56,8 @@ If you encounter an error while installing Flash Attention, please [**manually d
 | Models           | Download |   Features |
 |------------------|---------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
 | MagicWorld-v1.5      | 🤗 [Huggingface]() 🤖 [ModelScope]()         | Full framework with geometry condition, motion constraint, history cache retrieval and multi-shot aggerated DMD.          |
-| MagicWorld-v1.0      | 🤗 [Huggingface]() 🤖 [ModelScope]()         | Basic framework with geometry condition and history cache retrieval.                                                      |                 
+| MagicWorld-v1.0      | 🤗 [Huggingface]() 🤖 [ModelScope]()         | Basic framework with geometry condition and history cache retrieval.                                                      |  
+| MagicWorld-Base      | 🤗 [Huggingface]() 🤖 [ModelScope]()         | Basic framework.                                                      | 
  
 
 ## 😉 Demo Inference
@@ -64,10 +66,58 @@ Before inference, you need to do two things:
 (2) run **action2traj.py** to map your keyboard actions to a camera trajectory and generate the trajectory .txt file.
 
 ```PowerShell
-python inference/interactive_magicworld_v1.py
+python inference/inference_magicworld_base.py
+```
+```PowerShell
+python inference/inference_magicworld_v1.py
 ```
 
 ## 🚀 Training
+We can choose whether to use deep speed in MagicWorld, which can save a lot of video memory.
+The data format is shown as follows.
+```json
+[
+    {
+      "file_path": "train/00000001.mp4",
+      "control_file_path": "camera/trajectory.txt",
+      "point_video_path": "render/00000001_render.mp4"
+      "text": "A group of young men in suits and sunglasses are walking down a city street.",
+      "type": "video"
+    },
+    .....
+]
+```
+Some parameters in the sh file can be confusing, and they are explained in this document:
+
+- `enable_bucket` is used to enable bucket training. When enabled, the model does not crop the images and videos at the center, but instead, it trains the entire images and videos after grouping them into buckets based on resolution.
+- `random_frame_crop` is used for random cropping on video frames to simulate videos with different frame counts.
+- `random_hw_adapt` is used to enable automatic height and width scaling for images and videos. When `random_hw_adapt` is enabled, the training images will have their height and width set to `image_sample_size` as the maximum and `min(video_sample_size, 512)` as the minimum. For training videos, the height and width will be set to `image_sample_size` as the maximum and `min(video_sample_size, 512)` as the minimum.
+  - For example, when `random_hw_adapt` is enabled, with `video_sample_n_frames=49`, `video_sample_size=1024`, and `image_sample_size=1024`, the resolution of image inputs for training is `512x512` to `1024x1024`, and the resolution of video inputs for training is `512x512x49` to `1024x1024x49`.
+  - For example, when `random_hw_adapt` is enabled, with `video_sample_n_frames=49`, `video_sample_size=1024`, and `image_sample_size=256`, the resolution of image inputs for training is `256x256` to `1024x1024`, and the resolution of video inputs for training is `256x256x49`.
+- `training_with_video_token_length` specifies training the model according to token length. For training images and videos, the height and width will be set to `image_sample_size` as the maximum and `video_sample_size` as the minimum.
+  - For example, when `training_with_video_token_length` is enabled, with `video_sample_n_frames=49`, `token_sample_size=1024`, `video_sample_size=1024`, and `image_sample_size=256`, the resolution of image inputs for training is `256x256` to `1024x1024`, and the resolution of video inputs for training is `256x256x49` to `1024x1024x49`.
+  - For example, when `training_with_video_token_length` is enabled, with `video_sample_n_frames=49`, `token_sample_size=512`, `video_sample_size=1024`, and `image_sample_size=256`, the resolution of image inputs for training is `256x256` to `1024x1024`, and the resolution of video inputs for training is `256x256x49` to `1024x1024x9`.
+  - The token length for a video with dimensions 512x512 and 49 frames is 13,312. We need to set the `token_sample_size = 512`.
+    - At 512x512 resolution, the number of video frames is 49 (~= 512 * 512 * 49 / 512 / 512).
+    - At 768x768 resolution, the number of video frames is 21 (~= 512 * 512 * 49 / 768 / 768).
+    - At 1024x1024 resolution, the number of video frames is 9 (~= 512 * 512 * 49 / 1024 / 1024).
+    - These resolutions combined with their corresponding lengths allow the model to generate videos of different sizes.
+- `resume_from_checkpoint` is used to set the training should be resumed from a previous checkpoint. Use a path or `"latest"` to automatically select the last available checkpoint.
+
+When train model with multi machines, please set the params as follows:
+```sh
+export MASTER_ADDR="your master address"
+export MASTER_PORT=10086
+export WORLD_SIZE=1 # The number of machines
+export NUM_PROCESS=8 # The number of processes, such as WORLD_SIZE * 8
+export RANK=0 # The rank of this machine
+
+accelerate launch --mixed_precision="bf16" --main_process_ip=$MASTER_ADDR --main_process_port=$MASTER_PORT --num_machines=$WORLD_SIZE --num_processes=$NUM_PROCESS --machine_rank=$RANK scripts/xxx.py
+```
+You can run the following command:
+```PowerShell
+bash train_magicworld_v1.sh
+```
 
 
 ## :star: Acknowledgement
