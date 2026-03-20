@@ -59,9 +59,9 @@ All the materials, including code, checkpoints, and demo, are made available und
 
 ```bibtex
 @article{li2025magicworld,
-  title={Magicworld: Interactive geometry-driven video world exploration},
-  author={Li, Guangyuan and Zheng, Siming and Xu, Shuolin and Chen, Jinwei and Li, Bo and Hu, Xiaobin and Zhao, Lei and Jiang, Peng-Tao},
-  journal={arXiv preprint arXiv:2511.18886},
-  year={2025}
+  title={MagicWorld: Towards Long-Horizon Stability for Interactive Video World Exploration},
+  author={Li, Guangyuan and Li, Bo and Chen, Jinwei and Hu, Xiaobin and Zhao, Lei and Jiang, Peng-Tao},
+  journal={arXiv preprint arXiv:2511.18886v2},
+  year={2026}
 }
 ```
