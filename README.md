@@ -44,6 +44,10 @@ Before inference, you need to do two things:
 python inference/interactive_magicworld_v1.py
 ```
 
+## 😉 Model Training
+```PowerShell
+bash scripts/train_magicworld_v1.5.sh
+```
 
 ## 😘 Acknowledgement
 Our code is modified based on [VideoX-Fun](https://github.com/aigc-apps/VideoX-Fun/tree/main). We adopt [Wan2.1-I2V-14B](https://github.com/Wan-Video/Wan2.1) as the base model. We use [Uni3C](https://github.com/alibaba-damo-academy/Uni3C) to generate 3D points. Thanks to all the contributors!
