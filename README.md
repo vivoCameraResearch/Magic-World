@@ -55,9 +55,9 @@ If you encounter an error while installing Flash Attention, please [**manually d
 ## :package: Pretrained Model Weights
 | Models           | Download |   Features |
 |------------------|---------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| MagicWorld-v1.5      | 🤗 [Huggingface]() 🤖 [ModelScope]()         | Full framework with geometry condition, motion constraint, history cache retrieval and multi-shot aggerated DMD.          |
-| MagicWorld-v1.0      | 🤗 [Huggingface]() 🤖 [ModelScope]()         | Basic framework with geometry condition and history cache retrieval.                                                      |  
-| MagicWorld-Base      | 🤗 [Huggingface]() 🤖 [ModelScope]()         | Basic framework.                                                      | 
+| MagicWorld-v1.5      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Full framework with geometry condition, motion constraint, history cache retrieval and multi-shot aggerated DMD.          |
+| MagicWorld-v1.0      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework with geometry condition and history cache retrieval.                                                      |  
+| MagicWorld-Base      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework.                                                      | 
  
 
 ## 😉 Demo Inference
