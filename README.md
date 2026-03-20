@@ -119,6 +119,8 @@ You can run the following command:
 bash train_magicworld_v1.sh
 ```
 
+## 📕 RealWM120K Dataset
+
 
 ## :star: Acknowledgement
 Our code is modified based on [VideoX-Fun](https://github.com/aigc-apps/VideoX-Fun/tree/main). We adopt [Wan2.1-I2V-14B](https://github.com/Wan-Video/Wan2.1) as the base model. We use [Uni3C](https://github.com/alibaba-damo-academy/Uni3C) to generate 3D points. The style of the logo is borrowed from [Helios](https://github.com/PKU-YuanGroup/Helios).
