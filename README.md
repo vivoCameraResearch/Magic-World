@@ -76,8 +76,8 @@ We thank [Siming Zheng](https://scholar.google.com/citations?user=zfYLLggAAAAJ&h
 [Infinite-World](https://github.com/MeiGen-AI/Infinite-World)  
 [Matrix-Game 2.0](https://github.com/SkyworkAI/Matrix-Game/tree/main/Matrix-Game-2)  
 [LingBot-World](https://github.com/robbyant/lingbot-world)  
-[YUME 1.5](https://github.com/stdstu12/YUME)
-[Self-Forcing](https://github.com/guandeh17/Self-Forcing)
+[YUME 1.5](https://github.com/stdstu12/YUME)  
+[Self-Forcing](https://github.com/guandeh17/Self-Forcing)  
 [LongLive](https://github.com/NVlabs/LongLive)
 
 
