@@ -1,7 +1,7 @@
 
 <h2 align="center"> 
   <a href="https://arxiv.org/abs/2505.21325v2">
-    MagicWorld: Interactive Geometry-driven Video World Exploration
+    MagicWorld: Towards Long-Horizon Stability for Interactive Video World Exploration
   </a>
 </h2>
 
@@ -44,20 +44,24 @@ Before inference, you need to do two things:
 python inference/interactive_magicworld_v1.py
 ```
 
+## :brain: Model Training
+```PowerShell
+bash scripts/train_magicworld_v1.5.sh
+```
 
-## 😘 Acknowledgement
+## :star: Acknowledgement
 Our code is modified based on [VideoX-Fun](https://github.com/aigc-apps/VideoX-Fun/tree/main). We adopt [Wan2.1-I2V-14B](https://github.com/Wan-Video/Wan2.1) as the base model. We use [Uni3C](https://github.com/alibaba-damo-academy/Uni3C) to generate 3D points. Thanks to all the contributors!
 
-## 😊 License
+## :scroll: License
 All the materials, including code, checkpoints, and demo, are made available under the [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license. You are free to copy, redistribute, remix, transform, and build upon the project for non-commercial purposes, as long as you give appropriate credit and distribute your contributions under the same license.
 
-## 🤩 Citation
+## :mortar_board: Citation
 
 ```bibtex
 @article{li2025magicworld,
-  title={Magicworld: Interactive geometry-driven video world exploration},
-  author={Li, Guangyuan and Zheng, Siming and Xu, Shuolin and Chen, Jinwei and Li, Bo and Hu, Xiaobin and Zhao, Lei and Jiang, Peng-Tao},
-  journal={arXiv preprint arXiv:2511.18886},
-  year={2025}
+  title={MagicWorld: Towards Long-Horizon Stability for Interactive Video World Exploration},
+  author={Li, Guangyuan and Li, Bo and Chen, Jinwei and Hu, Xiaobin and Zhao, Lei and Jiang, Peng-Tao},
+  journal={arXiv preprint arXiv:2511.18886v2},
+  year={2026}
 }
 ```
