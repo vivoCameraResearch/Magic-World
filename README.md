@@ -11,8 +11,10 @@
 
 <h5 align="center">⭐ 100x faster than LingBot-World-Base, achieves better results under VBench on the RealWM120K-Val dataset. ⭐</h5>
 
-<a href="https://arxiv.org/abs/2511.18886"><img src='https://img.shields.io/badge/arXiv-2501.11325-red?style=flat&logo=arXiv&logoColor=red' alt='arxiv'></a>&nbsp;
-<a href="https://vivocameraresearch.github.io/magicworld/"><img src='https://img.shields.io/badge/Project-Page-Green' alt='GitHub'></a>&nbsp;
+<a href="https://arxiv.org/abs/2505.21325v2"><img src='https://img.shields.io/badge/arXiv-2501.11325-red?style=flat&logo=arXiv&logoColor=red' alt='arxiv'></a>&nbsp;
+<a href="https://vivocameraresearch.github.io/magicworld/"><img src='https://img.shields.io/badge/Project-Page-Green' alt='Project'></a>&nbsp;
+<a href=""><img src='https://img.shields.io/badge/🤗-HuggingFace-blue' alt='HuggingFace'></a>&nbsp;
+<a href=""><img src='https://img.shields.io/badge/🤖-ModelScope-purple' alt='ModelScope'></a>&nbsp;
 <a href="http://www.apache.org/licenses/LICENSE-2.0"><img src='https://img.shields.io/badge/License-CC BY--NC--SA--4.0-lightgreen?style=flat&logo=Lisence' alt='License'></a>&nbsp;
 
 This repository is the official implementation of our **MagicWorld**, an interactive video world model that supports exploring a dynamic scene created from a single scene
@@ -38,7 +40,7 @@ image through continuous keyboard actions (W, A, S, D), while maintaining struct
 - [  ] Release the MagicWorld v1 pretrained weights
 - [  ] Release the MagicWorld v1.5 pretrained weights
 
-## 😍 Installation
+## :computer: Installation
 
 Create a conda environment & Install requirments 
 ```shell
@@ -69,6 +71,15 @@ python inference/interactive_magicworld_v1.py
 ## :star: Acknowledgement
 Our code is modified based on [VideoX-Fun](https://github.com/aigc-apps/VideoX-Fun/tree/main). We adopt [Wan2.1-I2V-14B](https://github.com/Wan-Video/Wan2.1) as the base model. We use [Uni3C](https://github.com/alibaba-damo-academy/Uni3C) to generate 3D points. The style of the logo is borrowed from [Helios](https://github.com/PKU-YuanGroup/Helios).
 We thank [Siming Zheng](https://scholar.google.com/citations?user=zfYLLggAAAAJ&hl=zh-CN) and [Shuolin Xu](https://scholar.google.com/citations?user=Jr-Vn8AAAAAJ&hl=zh-CN) for their initial support and suggestions  for our basic framework. Thanks to all the contributors!
+
+## :mag: Related Works
+[Infinite-World](https://github.com/MeiGen-AI/Infinite-World)  
+[Matrix-Game 2.0](https://github.com/SkyworkAI/Matrix-Game/tree/main/Matrix-Game-2)  
+[LingBot-World](https://github.com/robbyant/lingbot-world)  
+[YUME 1.5](https://github.com/stdstu12/YUME)
+[Self-Forcing](https://github.com/guandeh17/Self-Forcing)
+[LongLive](https://github.com/NVlabs/LongLive)
+
 
 ## :scroll: License
 All the materials, including code, checkpoints, and demo, are made available under the [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license. You are free to copy, redistribute, remix, transform, and build upon the project for non-commercial purposes, as long as you give appropriate credit and distribute your contributions under the same license.
