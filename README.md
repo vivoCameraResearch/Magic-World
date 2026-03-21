@@ -22,7 +22,7 @@ image through continuous keyboard actions (W, A, S, D), while maintaining struct
 
 
 ## :bulb: Highlights 
-- **Motion Drift Constrint**：We introduce a flow-guided motion preservation constrain that enforces temporal coherence in dynamic regions to prevent motion drift and ensure realistic motion evolution of dynamic subjects
+- **Motion Drift Constrint**：We introduce a flow-guided motion preservation constraint that enforces temporal coherence in dynamic regions to prevent motion drift and ensure realistic motion evolution of dynamic subjects
 - **Long-Horizon Stability**: We design a history cache retrieval strategy to preserve historical scene states during autoregressive rollout, and an enhanced interactive training strategy based on multi-shot aggregated DMD with dual-reward weighting, jointly improving long-horizon stability and reducing error accumulation.
 - **RealWM120K Dataset**: We build the RealWM120K dataset with diverse citywalk videos and multimodal annotations for real-world video world modeling. 
 
@@ -36,14 +36,21 @@ image through continuous keyboard actions (W, A, S, D), while maintaining struct
 ## ✅ To-Do List for MagicTryOn Release
 - ✅ Release the source code of v1
 - ✅ Release the source code of v1.5
-- [  ] Update training training configuration and instructions
+- [  ] Update training configuration and instructions
 - [  ] Release the RealWM120K dataset and processing tools.
 - [  ] Release the MagicWorld v1 pretrained weights
 - [  ] Release the MagicWorld v1.5 pretrained weights
 
+## Video Demo
+
+<a href="https://www.youtube.com/watch?v=b__kINccrK0" target="_blank">
+  <img src="https://img.youtube.com/vi/b__kINccrK0/maxresdefault.jpg" alt="MagicWorld" width="560" height="315">
+</a>
+
+
 ## :computer: Installation
 
-Create a conda environment & Install requirments 
+Create a conda environment & install requirements 
 ```shell
 # python==3.12.9 cuda==12.3 torch==2.2
 conda create -n magicworld python==3.12.9
@@ -55,7 +62,7 @@ If you encounter an error while installing Flash Attention, please [**manually d
 ## :package: Pretrained Model Weights
 | Models           | Download |   Features |
 |------------------|---------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| MagicWorld-v1.5      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Full framework with geometry condition, motion constraint, history cache retrieval and multi-shot aggerated DMD.          |
+| MagicWorld-v1.5      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Full framework with geometry condition, motion constraint, history cache retrieval and multi-shot aggregated DMD.          |
 | MagicWorld-v1.0      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework with geometry condition and history cache retrieval.                                                      |  
 | MagicWorld-Base      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework.                                                      | 
  
@@ -102,9 +109,9 @@ Some parameters in the sh file can be confusing, and they are explained in this 
     - At 768x768 resolution, the number of video frames is 21 (~= 512 * 512 * 49 / 768 / 768).
     - At 1024x1024 resolution, the number of video frames is 9 (~= 512 * 512 * 49 / 1024 / 1024).
     - These resolutions combined with their corresponding lengths allow the model to generate videos of different sizes.
-- `resume_from_checkpoint` is used to set the training should be resumed from a previous checkpoint. Use a path or `"latest"` to automatically select the last available checkpoint.
+- `resume_from_checkpoint` is used to set whether the training should resume from a previous checkpoint. Use a path or `"latest"` to automatically select the last available checkpoint.
 
-When train model with multi machines, please set the params as follows:
+When training the model with multiple machines, please set the params as follows:
 ```sh
 export MASTER_ADDR="your master address"
 export MASTER_PORT=10086
@@ -136,7 +143,7 @@ We thank [Siming Zheng](https://scholar.google.com/citations?user=zfYLLggAAAAJ&h
 
 
 ## :scroll: License
-All the materials, including code, checkpoints, and demo, are made available under the [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license. You are free to copy, redistribute, remix, transform, and build upon the project for non-commercial purposes, as long as you give appropriate credit and distribute your contributions under the same license.
+All the materials, including code, checkpoints, and demos, are made available under the [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license. You are free to copy, redistribute, remix, transform, and build upon the project for non-commercial purposes, as long as you give appropriate credit and distribute your contributions under the same license.
 
 ## :mortar_board: Citation
 
