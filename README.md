@@ -9,7 +9,7 @@
   </a>
 </h2>
 
-<h5 align="center">⭐ 100x faster than LingBot-World-Base, achieves better results under VBench on the RealWM120K-Val dataset. ⭐</h5>
+<h5 align="center">⭐ MagicWorld achieves achieves 20 FPS on the L40S GPU and better results under VBench on the RealWM120K-Val dataset. ⭐</h5>
 
 <a href="https://arxiv.org/abs/2505.21325v2"><img src='https://img.shields.io/badge/arXiv-2501.11325-red?style=flat&logo=arXiv&logoColor=red' alt='arxiv'></a>&nbsp;
 <a href="https://vivocameraresearch.github.io/magicworld/"><img src='https://img.shields.io/badge/Project-Page-Green' alt='Project'></a>&nbsp;
