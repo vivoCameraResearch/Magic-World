@@ -65,6 +65,7 @@ If you encounter an error while installing Flash Attention, please [**manually d
 | MagicWorld-v1.5      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Full framework with geometry condition, motion constraint, history cache retrieval and multi-shot aggregated DMD.          |
 | MagicWorld-v1.0      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework with geometry condition and history cache retrieval.                                                      |  
 | MagicWorld-Base      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework.                                                      | 
+| Wan2.1-Fun-V1.1      | 🤗 [Huggingface](https://huggingface.co/alibaba-pai/Wan2.1-Fun-V1.1-1.3B-InP) 🤖 [ModelScope](https://modelscope.cn/models/PAI/Wan2.1-Fun-V1.1-1.3B-InP)         | You need to download other frozen pretrained weights such as VAE and CLIP, and specify their storage path in --model_name.                                                     | 
  
 
 ## 😉 Demo Inference
