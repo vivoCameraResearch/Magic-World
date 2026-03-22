@@ -148,7 +148,7 @@ All the materials, including code, checkpoints, and demos, are made available un
 ## :mortar_board: Citation
 
 ```bibtex
-@article{li2025magicworld,
+@article{li2026magicworld,
   title={MagicWorld: Towards Long-Horizon Stability for Interactive Video World Exploration},
   author={Li, Guangyuan and Li, Bo and Chen, Jinwei and Hu, Xiaobin and Zhao, Lei and Jiang, Peng-Tao},
   journal={arXiv preprint arXiv:2511.18886v2},
