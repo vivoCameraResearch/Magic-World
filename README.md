@@ -4,14 +4,14 @@
 </div>
 
 <h2 align="center"> 
-  <a href="https://arxiv.org/abs/2505.21325v2">
+  <a href="https://arxiv.org/abs/2511.18886">
     MagicWorld: Towards Long-Horizon Stability for Interactive Video World Exploration
   </a>
 </h2>
 
 <h5 align="center">⭐ MagicWorld achieves achieves 18 FPS on the L40S GPU and better results under VBench on the RealWM120K-Val dataset. ⭐</h5>
 
-<a href="https://arxiv.org/abs/2505.21325v2"><img src='https://img.shields.io/badge/arXiv-2501.11325-red?style=flat&logo=arXiv&logoColor=red' alt='arxiv'></a>&nbsp;
+<a href="https://arxiv.org/abs/2511.18886"><img src='https://img.shields.io/badge/arXiv-2501.11325-red?style=flat&logo=arXiv&logoColor=red' alt='arxiv'></a>&nbsp;
 <a href="https://vivocameraresearch.github.io/magicworld/"><img src='https://img.shields.io/badge/Project-Page-Green' alt='Project'></a>&nbsp;
 <a href="https://huggingface.co/LuckyLiGY/MagicWorld"><img src='https://img.shields.io/badge/🤗-HuggingFace-blue' alt='HuggingFace'></a>&nbsp;
 <a href=""><img src='https://img.shields.io/badge/🤖-ModelScope-purple' alt='ModelScope'></a>&nbsp;
