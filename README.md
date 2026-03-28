@@ -62,8 +62,8 @@ If you encounter an error while installing Flash Attention, please [**manually d
 ## :package: Pretrained Model Weights
 | Models           | Download |   Features |
 |------------------|---------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| MagicWorld-v1.5      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Full framework with geometry condition, motion constraint, history cache retrieval and multi-shot aggregated DMD.          |
-| MagicWorld-v1.0      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework with geometry condition and history cache retrieval.                                                      |  
+| MagicWorld-Fast      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | DMD-based MagicWorld.          |
+| MagicWorld      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework with geometry condition and history cache retrieval.                                                      |  
 | MagicWorld-Base      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework.                                                      | 
 | Wan2.1-Fun-V1.1      | 🤗 [Huggingface](https://huggingface.co/alibaba-pai/Wan2.1-Fun-V1.1-1.3B-InP) 🤖 [ModelScope](https://modelscope.cn/models/PAI/Wan2.1-Fun-V1.1-1.3B-InP)         | You need to download other frozen pretrained weights such as VAE and CLIP, and specify their storage path in --model_name.                                                     | 
  
@@ -77,7 +77,7 @@ Before inference, you need to do two things:
 python inference/inference_magicworld_base.py
 ```
 ```PowerShell
-python inference/inference_magicworld_v1.py
+python inference/inference_magicworld.py
 ```
 
 ## 🚀 Training
