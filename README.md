@@ -70,7 +70,7 @@ If you encounter an error while installing Flash Attention, please [**manually d
 
 ## 😉 Demo Inference
 Before inference, you need to do two things:
-(1) install the [Uni3C](https://github.com/alibaba-damo-academy/Uni3C) library and its environment, then import the path to your installed Uni3C in uni3c_cam_render_api.py.
+(1) install the [Uni3C](https://github.com/alibaba-damo-academy/Uni3C) library and its environment, then import the path to your installed Uni3C in **uni3c_cam_render_api.py**.
 (2) run **action2traj.py** to map your keyboard actions to a camera trajectory and generate the trajectory .txt file.
 
 ```PowerShell
@@ -79,6 +79,18 @@ python inference/inference_magicworld_base.py
 ```PowerShell
 python inference/inference_magicworld.py
 ```
+```PowerShell
+python inference/inference_magicworld_fast.py \
+  --num_output_frames 21 \
+  --config_path configs/reward_forcing.yaml \
+  --checkpoint_path MagicWorld-Fast/model.pt \
+  --output_folder videos/ar_mutil_reward \
+  --data_path “the folder of first image” \
+  --extended_prompt_path “the json of image caption”.json \ #JSON expected: list of {"name": "...png", "describe": "..."}.
+  --control_camera_txt trajectory_full.txt \
+  --i2v
+```
+
 
 ## 🚀 Training
 We can choose whether to use deep speed in MagicWorld, which can save a lot of video memory.
