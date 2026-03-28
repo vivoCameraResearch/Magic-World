@@ -90,7 +90,7 @@ start_image_path = ""  # <-- 改成你的起始图片
 ref_image               = None
 
 # 交互次数
-num_chunks          = 1
+num_chunks          = 2
 
 prompt = ""
 negative_prompt = (
@@ -102,7 +102,7 @@ negative_prompt = (
 guidance_scale          = 6.0
 seed                    = 43
 num_inference_steps     = 50
-save_root               = "samples/wan-videos-magicworld-v1"
+save_root               = "samples/wan-videos-magicworld"
 os.makedirs(save_root, exist_ok=True)
 
 # ========================
