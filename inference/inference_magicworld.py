@@ -61,8 +61,8 @@ riflex_k            = 6
 
 # Config & Model
 config_path         = "config/wan2.1/wan_civitai.yaml"
-model_name          = "Wan2.1-Fun-V1.1-1.3B-Control-Camera"
-transformer_name    = ""
+model_name          = "checkpoints/Wan2.1-Fun-V1.1-1.3B-InP"
+transformer_name    = "checkpoints/MagicWorld/MagicWorld"
 
 # 采样器与 shift
 sampler_name        = "Flow"  # ["Flow", "Flow_Unipc", "Flow_DPM++"]
