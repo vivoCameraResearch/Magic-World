@@ -65,8 +65,8 @@ riflex_k            = 6
 
 # Config & Model
 config_path         = "config/wan2.1/wan_civitai.yaml"
-model_name          = "Wan2.1-Fun-V1.1-1.3B-Control-Camera"
-transformer_name    = ""
+model_name          = "checkpoints/Wan2.1-Fun-V1.1-1.3B-InP"
+transformer_name    = "checkpoints/MagicWorld/MagicWorld-Base"
 
 # 采样器与 shift
 sampler_name        = "Flow"  # ["Flow", "Flow_Unipc", "Flow_DPM++"]
@@ -86,7 +86,7 @@ weight_dtype        = torch.bfloat16
 
 # 控制输入
 control_camera_txt  = ""
-num_chunks          = 4
+num_chunks          = 3
 
 # ========================
 # 单张图片 + 单条 prompt
