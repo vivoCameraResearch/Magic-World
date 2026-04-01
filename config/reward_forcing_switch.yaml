@@ -1,10 +1,8 @@
-generator_ckpt: MagicWorld-Fast/model.pt
+generator_ckpt: MagicWorld-ODE/model.pt
 generator_fsdp_wrap_strategy: size
 real_score_fsdp_wrap_strategy: size
 fake_score_fsdp_wrap_strategy: size
-real_name: \\\\\
-#real_name: Wan2.1-T2V-1.3B
-# fake_name: Wan2.1-T2V-1.3B
+real_name: checkpoints/MagicWorld/MagicWorld-Base
 text_encoder_fsdp_wrap_strategy: size
 denoising_step_list:
 - 1000
@@ -30,7 +28,7 @@ beta1: 0.0
 beta2: 0.999
 beta1_critic: 0.0
 beta2_critic: 0.999
-data_path: \\\\\
+data_path: 
 batch_size: 1
 ema_weight: 0.99
 ema_start_step: 200
