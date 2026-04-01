@@ -1,5 +1,7 @@
 import argparse
 import os
+import sys
+sys.path.insert(0, "./Magic-World")
 import re
 import json
 from pathlib import Path
@@ -256,7 +258,7 @@ def main():
 
     # -------- clip image encoder --------
     clip_config_path = "config/wan2.1/wan_civitai.yaml"
-    clip_name = "Wan2.1-Fun-V1.1"
+    clip_name = "checkpoints/Wan2.1-Fun-V1.1-1.3B-InP"
     clip_config = OmegaConf.load(clip_config_path)
 
     clip_image_encoder = CLIPModel.from_pretrained(
