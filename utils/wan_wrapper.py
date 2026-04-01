@@ -29,14 +29,14 @@ class WanTextEncoder(torch.nn.Module):
         #                map_location='cpu', weights_only=False)
         # )
         self.text_encoder.load_state_dict(
-            torch.load("Self-Forcing-main/wan_models/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth",
+            torch.load("checkpoints/Wan2.1-Fun-V1.1-1.3B-InP/models_t5_umt5-xxl-enc-bf16.pth",
                        map_location='cpu', weights_only=False)
         )
 
         # self.tokenizer = HuggingfaceTokenizer(
         #     name=f"{checkpoint_path}/Wan2.1-T2V-1.3B/google/umt5-xxl/", seq_len=512, clean='whitespace')
         self.tokenizer = HuggingfaceTokenizer(
-            name="Self-Forcing-main/wan_models/Wan2.1-T2V-1.3B/google/umt5-xxl/", seq_len=512, clean='whitespace')
+            name="checkpoints/Wan2.1-Fun-V1.1-1.3B-InP/google/umt5-xxl/", seq_len=512, clean='whitespace')
 
     @property
     def device(self):
@@ -79,7 +79,7 @@ class WanVAEWrapper(torch.nn.Module):
         #     z_dim=16,
         # ).eval().requires_grad_(False)
         self.model = _video_vae(
-            pretrained_path="Self-Forcing-main/wan_models/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth",
+            pretrained_path="checkpoints/Wan2.1-Fun-V1.1-1.3B-InP/Wan2.1_VAE.pth",
             z_dim=16,
         ).eval().requires_grad_(False)
 
@@ -128,7 +128,7 @@ class WanVAEWrapper(torch.nn.Module):
 class WanDiffusionWrapper(torch.nn.Module):
     def __init__(
             self,
-            model_name="logs/Wan2_2/funeturning_control_sekai_dataset/checkpoint-68000/transformer",
+            model_name="checkpoints/MagicWorld/MagicWorld-Base",
             timestep_shift=8.0,
             is_causal=False,
             local_attn_size=-1,
@@ -137,7 +137,7 @@ class WanDiffusionWrapper(torch.nn.Module):
         super().__init__()
 
         weight_dtype = torch.bfloat16
-        config = OmegaConf.load("VideoX-Fun-Camera/config/wan2.1/wan_civitai.yaml")
+        config = OmegaConf.load("config/wan2.1/wan_civitai.yaml")
 
         if is_causal:
             # self.model = CausalWanModel.from_pretrained(
