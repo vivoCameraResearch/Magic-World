@@ -34,11 +34,11 @@ image through continuous keyboard actions (W, A, S, D), while maintaining struct
 
 
 ## ✅ To-Do List for MagicTryOn Release
-- ✅ Release the source code of v1
-- ✅ Release the source code of v1.5
+- ✅ Release the source code of MagicWorld
+- ✅ Release the source code of MagicWorld-Fast
 - ✅ Update training configuration and instructions
-- ✅ Release the MagicWorld v1 pretrained weights
-- ✅ Release the MagicWorld v1.5 pretrained weights
+- ✅ Release the MagicWorld pretrained weights
+- ✅ Release the MagicWorld-Fast pretrained weights
 - [  ] Release the RealWM120K dataset and processing tools
 
 ## Video Demo
