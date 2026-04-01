@@ -979,7 +979,7 @@ class WanModel(ModelMixin, ConfigMixin):
     ):
         if subfolder is not None:
             pretrained_model_path = os.path.join(pretrained_model_path, subfolder)
-        print(f"loaded 3D transformer's pretrained weights from {pretrained_model_path} ...")
+        # print(f"loaded 3D transformer's pretrained weights from {pretrained_model_path} ...")
 
         config_file = os.path.join(pretrained_model_path, 'config.json')
         if not os.path.isfile(config_file):
