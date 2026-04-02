@@ -143,7 +143,7 @@ bash train_magicworld_v1.sh
 
 
 ## :star: Acknowledgement
-Our code is modified based on [VideoX-Fun](https://github.com/aigc-apps/VideoX-Fun/tree/main). We adopt [Wan2.1-I2V-14B](https://github.com/Wan-Video/Wan2.1) as the base model. We use [Uni3C](https://github.com/alibaba-damo-academy/Uni3C) to generate 3D points. The style of the logo is borrowed from [Helios](https://github.com/PKU-YuanGroup/Helios).
+Our code is modified based on [VideoX-Fun](https://github.com/aigc-apps/VideoX-Fun/tree/main). We adopt [Wan2.1-Fun-V1.1](https://github.com/Wan-Video/Wan2.1) as the base model. We use [Uni3C](https://github.com/alibaba-damo-academy/Uni3C) to generate 3D points. The style of the logo is borrowed from [Helios](https://github.com/PKU-YuanGroup/Helios).
 We thank [Siming Zheng](https://scholar.google.com/citations?user=zfYLLggAAAAJ&hl=zh-CN) and [Shuolin Xu](https://scholar.google.com/citations?user=Jr-Vn8AAAAAJ&hl=zh-CN) for their initial support and suggestions  for our basic framework. Thanks to all the contributors!
 
 ## :mag: Related Works
