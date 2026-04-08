@@ -70,7 +70,7 @@ If you encounter an error while installing Flash Attention, please [**manually d
 
 ## 😉 Demo Inference
 Before inference, you need to do two things:
-(1) install the [Uni3C](https://github.com/alibaba-damo-academy/Uni3C) library and its environment, then import the path to your installed Uni3C in **uni3c_cam_render_api.py**.
+(1) install the [Uni3C](https://github.com/alibaba-damo-academy/Uni3C) library and its environment, then import the path to your installed Uni3C in **uni3c_cam_render_api.py**. eg. sys.path.insert(0, "path of Uni3C-main").
 (2) run **action2traj.py** to map your keyboard actions to a camera trajectory and generate the trajectory .txt file.
 
 ```PowerShell
