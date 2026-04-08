@@ -12,6 +12,7 @@ def cond_current(conditional_dict, current_start_frame, num_frame_per_block):
     new_cond["prompt_embeds"] = conditional_dict["prompt_embeds"]
     new_cond["y"] = conditional_dict["y"][:, :, current_start_frame: current_start_frame + num_frame_per_block]
     new_cond["clip_fea"] = conditional_dict["clip_fea"]
+    new_cond["y_history"] = conditional_dict["y_history"]
     new_cond["y_camera"] = conditional_dict["y_camera"][:, :, current_start_frame: current_start_frame + num_frame_per_block]
 
     return new_cond
@@ -60,6 +61,7 @@ class CausalInferencePipeline(torch.nn.Module):
         text_prompts: List[str],
         initial_latent: Optional[torch.Tensor] = None,
         y_input: Optional[torch.Tensor] = None,
+        y_history: Optional[torch.Tensor] = None,
         y_camera_input: Optional[torch.Tensor] = None,
         clip_context: Optional[torch.Tensor] = None,
         return_latents: bool = False,
@@ -102,6 +104,7 @@ class CausalInferencePipeline(torch.nn.Module):
         conditional_dict.update({
                 "clip_fea": clip_context,
                 "y": y_input,
+                "y_history": y_history,
                 "y_camera": y_camera_input,
             })
 
