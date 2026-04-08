@@ -36,10 +36,12 @@ image through continuous keyboard actions (W, A, S, D), while maintaining struct
 ## ✅ To-Do List for MagicTryOn Release
 - ✅ Release the source code of MagicWorld
 - ✅ Release the source code of MagicWorld-Fast
-- ✅ Update training configuration and instructions
+- ✅ Update MagicWorld training configuration and instructions
 - ✅ Release the MagicWorld pretrained weights
 - ✅ Release the MagicWorld-Fast pretrained weights
 - [  ] Release the RealWM120K dataset and processing tools
+- [  ] Update the ODE construction and initialization training code
+- [  ] Update the MagicWorld-Fast training code
 
 ## Video Demo
 
