@@ -690,7 +690,8 @@ class WanModel(ModelMixin, ConfigMixin):
         gan_ca_blocks=None,
         clip_fea=None,
         y=None,
-        y_camera=None
+        y_camera=None,
+        y_history=None
     ):
         r"""
         Forward pass through the diffusion model
@@ -721,7 +722,28 @@ class WanModel(ModelMixin, ConfigMixin):
             self.freqs = self.freqs.to(device)
 
         if y is not None:
-            x = [torch.cat([u, v], dim=0) for u, v in zip(x, y)]
+            alpha = 0.3
+            render_channels = 16
+            new_x = []
+            for u, v in zip(x, y):
+                v_channels = v.shape[0]
+                if v_channels == render_channels:
+                    new_x.append(torch.cat([u, v], dim=0))
+                else:
+                    if v_channels < render_channels:
+                        raise ValueError(
+                            f"v channel ({v_channels}) is smaller than render_channels ({render_channels})"
+                        )
+                    v_main = v[:-render_channels]
+                    render_latent = v[-render_channels:]
+                    if v_main.shape != render_latent.shape:
+                        min_c = min(v_main.shape[0], render_latent.shape[0])
+                        v_main = v_main[:min_c, ...]
+                        render_latent = render_latent[:min_c, ...]
+                    v_new = v_main + alpha * render_latent
+                    new_x.append(torch.cat([u, v_new], dim=0))
+            x = new_x
+            # x = [torch.cat([u, v], dim=0) for u, v in zip(x, y)]
 
         # embeddings
         x = [self.patch_embedding(u.unsqueeze(0)) for u in x]
