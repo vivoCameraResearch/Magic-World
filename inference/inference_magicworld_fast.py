@@ -27,7 +27,8 @@ from pipeline import (
 )
 
 from wan.modules.wan_image_encoder import CLIPModel
-from utils.dataset_image_video import process_pose_file, get_video_to_video_render_latent
+from utils.dataset_image_video import process_pose_file
+from videox_fun.utils.utils import get_video_to_video_render_latent
 from utils.misc import set_seed
 
 from demo_utils.memory import get_cuda_free_memory_gb, DynamicSwapInstaller
