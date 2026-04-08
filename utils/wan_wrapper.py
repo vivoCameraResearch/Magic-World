@@ -259,6 +259,7 @@ class WanDiffusionWrapper(torch.nn.Module):
         clip_fea = conditional_dict["clip_fea"]
         y = conditional_dict["y"]
         y_camera = conditional_dict["y_camera"]
+        y_history = conditional_dict["y_history"]
 
         # [B, F] -> [B]
         if self.uniform_timestep:
@@ -277,6 +278,7 @@ class WanDiffusionWrapper(torch.nn.Module):
                 y=y,
                 y_camera=y_camera, 
                 clip_fea=clip_fea,
+                y_history=y_history,
                 ####
                 kv_cache=kv_cache,
                 crossattn_cache=crossattn_cache,
@@ -294,6 +296,7 @@ class WanDiffusionWrapper(torch.nn.Module):
                     y=y,
                     y_camera=y_camera, 
                     clip_fea=clip_fea,
+                    y_history=y_history,
                     ####
                     clean_x=clean_x.permute(0, 2, 1, 3, 4),
                     aug_t=aug_t,
@@ -308,6 +311,7 @@ class WanDiffusionWrapper(torch.nn.Module):
                         y=y,
                         y_camera=y_camera, 
                         clip_fea=clip_fea,
+                        y_history=y_history,
                         ####
                         classify_mode=True,
                         register_tokens=self._register_tokens,
@@ -325,6 +329,7 @@ class WanDiffusionWrapper(torch.nn.Module):
                         y=y,
                         y_camera=y_camera, 
                         clip_fea=clip_fea,
+                        y_history=y_history,
                         ####
                     ).permute(0, 2, 1, 3, 4)
 
