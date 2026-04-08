@@ -62,9 +62,9 @@ If you encounter an error while installing Flash Attention, please [**manually d
 ## :package: Pretrained Model Weights
 | Models           | Download |   Features |
 |------------------|---------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| MagicWorld-Fast      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | DMD-based MagicWorld.          |
-| MagicWorld      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework with geometry condition and history cache retrieval.                                                      |  
-| MagicWorld-Base      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope]()         | Basic framework.                                                      | 
+| MagicWorld-Fast      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope](https://modelscope.cn/models/LuckyLiGY/MagicWorld)         | DMD-based MagicWorld.          |
+| MagicWorld      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope](https://modelscope.cn/models/LuckyLiGY/MagicWorld)         | Basic framework with geometry condition and history cache retrieval.                                                      |  
+| MagicWorld-Base      | 🤗 [Huggingface](https://huggingface.co/LuckyLiGY/MagicWorld) 🤖 [ModelScope](https://modelscope.cn/models/LuckyLiGY/MagicWorld)         | Basic framework.                                                      | 
 | Wan2.1-Fun-V1.1      | 🤗 [Huggingface](https://huggingface.co/alibaba-pai/Wan2.1-Fun-V1.1-1.3B-InP) 🤖 [ModelScope](https://modelscope.cn/models/PAI/Wan2.1-Fun-V1.1-1.3B-InP)         | You need to download other frozen pretrained weights such as VAE and CLIP, and specify their storage path in --model_name.                                                     | 
  
 
