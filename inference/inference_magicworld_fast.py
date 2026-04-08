@@ -190,10 +190,6 @@ def _trim_cache_list_to_max_frames(
     cache_list: List[torch.Tensor],
     max_frames: int
 ) -> List[torch.Tensor]:
-    """
-    保证历史缓存总帧数不超过 max_frames。
-    策略：保留最新帧，超出的从最老的开始裁掉。
-    """
     if max_frames <= 0:
         return []
 
