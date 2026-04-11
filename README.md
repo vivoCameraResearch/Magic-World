@@ -141,6 +141,52 @@ You can run the following command:
 bash train_magicworld_v1.sh
 ```
 
+### Pickup Event Smoke Finetuning
+This is the current smoke-oriented `pickup` workflow. For the full operator notes and acceptance checklist, see [`docs/pickup_event_smoke_runbook.md`](docs/pickup_event_smoke_runbook.md).
+
+1. Prepare a pickup manifest before export.
+```bash
+ python scripts/data/prepare_epic_pickup_manifest.py \
+   --input-csv tmp/pickup_source.csv \
+   --output-json tmp/pickup_manifest.json
+```
+Manifest rows must include `source_video_path` before export.
+
+2. Run the smoke export.
+```bash
+python scripts/data/export_magicworld_pickup_dataset.py \
+  --manifest-json tmp/pickup_manifest.json \
+  --output-dir tmp/pickup_smoke_export \
+  --dry-run
+```
+`--dry-run` still writes files. It copies source video bytes into both `clips/` and `controls/`, then writes `metadata.json`.
+
+3. Run the smoke finetune command.
+```bash
+python scripts/train_magicworld_v1.5.py \
+  --pretrained_model_name_or_path ckpt/Wan2.1-T2V-1.3B \
+  --pretrained_transformer_path ckpt/Wan2.1-T2V-1.3B \
+  --config_path config/wan2.1/wan_civitai.yaml \
+  --train_data_dir tmp/pickup_smoke_export \
+  --train_data_meta tmp/pickup_smoke_export/metadata.json \
+  --output_dir tmp/pickup_smoke_train \
+  --train_mode control \
+  --train_batch_size 1 \
+  --max_train_steps 1 \
+  --checkpointing_steps 1 \
+  --smoke_run \
+  --max_train_samples 1 \
+  --enable_event_text \
+  --text_composition_mode event_prefix
+```
+The exported metadata keeps `text` empty and `event_text` populated so event-prefix composition avoids duplication.
+
+Expected outputs:
+- `tmp/pickup_smoke_export/metadata.json`
+- `tmp/pickup_smoke_export/clips/<sample_id>.mp4`
+- `tmp/pickup_smoke_export/controls/<sample_id>.mp4`
+- `tmp/pickup_smoke_train/`
+
 ## 📕 RealWM120K Dataset
 
 

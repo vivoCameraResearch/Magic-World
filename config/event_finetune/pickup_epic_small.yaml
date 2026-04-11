@@ -1,0 +1,20 @@
+pretrained_model_name_or_path: checkpoints/MagicWorld/MagicWorld-Base
+pretrained_transformer_path: checkpoints/MagicWorld/MagicWorld-Base
+train_data_dir: datasets/epic_pickup_small
+train_data_meta: datasets/epic_pickup_small/metadata.json
+output_dir: outputs/pickup_epic_small
+train_batch_size: 1
+gradient_accumulation_steps: 4
+video_sample_size: 256
+image_sample_size: 256
+video_sample_n_frames: 21
+video_sample_stride: 2
+learning_rate: 2.0e-5
+mixed_precision: bf16
+gradient_checkpointing: true
+enable_event_text: true
+text_composition_mode: event_prefix
+train_mode: control_camera_ref
+trainable_modules:
+  - attn2
+  - ff.net

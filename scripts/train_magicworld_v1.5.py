@@ -25,6 +25,8 @@ import random
 import shutil
 import sys
 
+SMOKE_RUN_MAX_TRAIN_SAMPLES = 128
+
 import accelerate
 import diffusers
 import numpy as np
@@ -105,6 +107,13 @@ def linear_decay(initial_value, final_value, total_steps, current_step):
     step_size = (final_value - initial_value) / total_steps
     current_value = initial_value + step_size * current_step
     return current_value
+
+
+def resolve_max_train_samples(args, dataset_length):
+    if args.max_train_samples is None:
+        return None
+
+    return min(args.max_train_samples, dataset_length)
 
 def generate_timestep_with_lognorm(low, high, shape, device="cpu", generator=None):
     u = torch.normal(mean=0.0, std=1.0, size=shape, device=device, generator=generator)
@@ -207,7 +216,7 @@ def log_validation(vae, text_encoder, tokenizer, clip_image_encoder, transformer
         print(f"Eval error with info {e}")
         return None
 
-def parse_args():
+def parse_args(input_args=None):
     parser = argparse.ArgumentParser(description="Simple example of a training script.")
     parser.add_argument(
         "--input_perturbation", type=float, default=0, help="The scale of input perturbation. Recommended 0.1."
@@ -256,6 +265,18 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--enable_event_text",
+        action="store_true",
+        help="Whether to include event text in dataset captions.",
+    )
+    parser.add_argument(
+        "--text_composition_mode",
+        type=str,
+        default="original",
+        choices=["original", "event_prefix", "event_only"],
+        help="How to compose event text with the original caption.",
+    )
+    parser.add_argument(
         "--max_train_samples",
         type=int,
         default=None,
@@ -263,6 +284,11 @@ def parse_args():
             "For debugging purposes or quicker training, truncate the number of training examples to this "
             "value if set."
         ),
+    )
+    parser.add_argument(
+        "--smoke_run",
+        action="store_true",
+        help="Whether to require a small sampled training run.",
     )
     parser.add_argument(
         "--validation_prompts",
@@ -571,6 +597,7 @@ def parse_args():
         "--config_path",
         type=str,
         default=None,
+        required=True,
         help=(
             "The config of the model in training."
         ),
@@ -634,6 +661,7 @@ def parse_args():
         "--train_mode",
         type=str,
         default="control",
+        choices=["control", "control_ref", "control_camera_ref"],
         help=(
             'The format of training data. Support `"control"`'
             ' (default), `"control_ref"`, `"control_camera_ref"`.'
@@ -675,10 +703,22 @@ def parse_args():
         help="Scale of mode weighting scheme. Only effective when using the `'mode'` as the `weighting_scheme`.",
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(input_args)
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
     if env_local_rank != -1 and env_local_rank != args.local_rank:
         args.local_rank = env_local_rank
+
+    if args.text_composition_mode != "original" and not args.enable_event_text:
+        parser.error("--text_composition_mode requires --enable_event_text unless it is set to 'original'.")
+
+    if args.enable_event_text and args.train_data_meta is None:
+        parser.error("--enable_event_text requires --train_data_meta.")
+
+    if args.smoke_run and args.max_train_samples is None:
+        parser.error("--smoke_run requires --max_train_samples.")
+
+    if args.smoke_run and args.max_train_samples > SMOKE_RUN_MAX_TRAIN_SAMPLES:
+        parser.error(f"--smoke_run requires --max_train_samples <= {SMOKE_RUN_MAX_TRAIN_SAMPLES}.")
 
     # default to using the same revision for the non-ema model if not specified
     if args.non_ema_revision is None:
@@ -1115,8 +1155,13 @@ def main():
         video_repeat=args.video_repeat, 
         image_sample_size=args.image_sample_size,
         enable_bucket=args.enable_bucket, 
-        enable_camera_info=args.train_mode == "control_camera_ref"
+        enable_camera_info=args.train_mode == "control_camera_ref",
+        text_composition_mode=args.text_composition_mode if args.enable_event_text else "original",
     )
+    max_train_samples = resolve_max_train_samples(args, len(train_dataset))
+    if max_train_samples is not None:
+        train_dataset.dataset = train_dataset.dataset[:max_train_samples]
+        train_dataset.length = max_train_samples
 
     def worker_init_fn(_seed):
         _seed = _seed * 256

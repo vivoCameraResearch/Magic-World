@@ -26,6 +26,22 @@ from torch.utils.data.dataset import Dataset
 
 VIDEO_READER_TIMEOUT = 20
 
+
+def compose_training_text(data_info, mode='original'):
+    text = data_info.get('text', '')
+    event_text = data_info.get('event_text', '')
+
+    if mode == 'original' or not event_text:
+        return text
+    if mode == 'event_prefix':
+        if text:
+            return f'{event_text}. {text}'
+        return event_text
+    if mode == 'event_only':
+        return event_text
+
+    raise ValueError(f'Unsupported text composition mode: {mode}')
+
 def resize_frame_for_mask(frame, target_short_side):
     h, w, _ = frame.shape
     if h < w:
@@ -427,6 +443,7 @@ class ImageVideoDataset(Dataset):
         image_sample_size=512,
         video_repeat=0,
         text_drop_ratio=0.1,
+        text_composition_mode='original',
         enable_bucket=False,
         video_length_drop_start=0.0, 
         video_length_drop_end=1.0,
@@ -439,7 +456,8 @@ class ImageVideoDataset(Dataset):
             with open(ann_path, 'r') as csvfile:
                 dataset = list(csv.DictReader(csvfile))
         elif ann_path.endswith('.json'):
-            dataset = json.load(open(ann_path))
+            with open(ann_path, 'r') as json_file:
+                dataset = json.load(json_file)
     
         self.data_root = data_root
 
@@ -463,6 +481,7 @@ class ImageVideoDataset(Dataset):
         # TODO: enable bucket training
         self.enable_bucket = enable_bucket
         self.text_drop_ratio = text_drop_ratio
+        self.text_composition_mode = text_composition_mode
         self.enable_inpaint = enable_inpaint
         self.return_file_name = return_file_name
 
@@ -494,9 +513,10 @@ class ImageVideoDataset(Dataset):
 
     def get_batch(self, idx):
         data_info = self.dataset[idx % len(self.dataset)]
+        text = compose_training_text(data_info, self.text_composition_mode)
         
         if data_info.get('type', 'image')=='video':
-            video_id, text = data_info['file_path'], data_info['text']
+            video_id = data_info['file_path']
 
             if self.data_root is None:
                 video_dir = video_id
@@ -547,7 +567,7 @@ class ImageVideoDataset(Dataset):
                     text = ''
             return pixel_values, text, 'video', video_dir
         else:
-            image_path, text = data_info['file_path'], data_info['text']
+            image_path = data_info['file_path']
             if self.data_root is not None:
                 image_path = os.path.join(self.data_root, image_path)
             image = Image.open(image_path).convert('RGB')
@@ -607,6 +627,7 @@ class ImageVideoControlDataset(Dataset):
         image_sample_size=512,
         video_repeat=0,
         text_drop_ratio=0.1,
+        text_composition_mode='original',
         enable_bucket=False,
         video_length_drop_start=0.1, 
         video_length_drop_end=0.9,
@@ -620,7 +641,8 @@ class ImageVideoControlDataset(Dataset):
             with open(ann_path, 'r') as csvfile:
                 dataset = list(csv.DictReader(csvfile))
         elif ann_path.endswith('.json'):
-            dataset = json.load(open(ann_path))
+            with open(ann_path, 'r') as json_file:
+                dataset = json.load(json_file)
     
         self.data_root = data_root
 
@@ -644,6 +666,7 @@ class ImageVideoControlDataset(Dataset):
         # TODO: enable bucket training
         self.enable_bucket = enable_bucket
         self.text_drop_ratio = text_drop_ratio
+        self.text_composition_mode = text_composition_mode
         self.enable_inpaint = enable_inpaint
         self.enable_camera_info = enable_camera_info
         self.return_file_name = return_file_name
@@ -683,7 +706,8 @@ class ImageVideoControlDataset(Dataset):
     
     def get_batch(self, idx):
         data_info = self.dataset[idx % len(self.dataset)]
-        video_id, text = data_info['file_path'], data_info['text']
+        video_id = data_info['file_path']
+        text = compose_training_text(data_info, self.text_composition_mode)
 
         if data_info.get('type', 'image')=='video':
             if self.data_root is None:
@@ -796,7 +820,7 @@ class ImageVideoControlDataset(Dataset):
             return pixel_values, control_pixel_values, control_camera_values, text, "video", video_dir
 
         else:
-            image_path, text = data_info['file_path'], data_info['text']
+            image_path = data_info['file_path']
             if self.data_root is not None:
                 image_path = os.path.join(self.data_root, image_path)
             image = Image.open(image_path).convert('RGB')
@@ -876,6 +900,7 @@ class ImageVideoCameraDepthControlDataset(Dataset):
         image_sample_size=512,
         video_repeat=0,
         text_drop_ratio=0.1,
+        text_composition_mode='original',
         enable_bucket=False,
         video_length_drop_start=0.1, 
         video_length_drop_end=0.9,
@@ -889,7 +914,8 @@ class ImageVideoCameraDepthControlDataset(Dataset):
             with open(ann_path, 'r') as csvfile:
                 dataset = list(csv.DictReader(csvfile))
         elif ann_path.endswith('.json'):
-            dataset = json.load(open(ann_path))
+            with open(ann_path, 'r') as json_file:
+                dataset = json.load(json_file)
     
         self.data_root = data_root
 
@@ -913,6 +939,7 @@ class ImageVideoCameraDepthControlDataset(Dataset):
         # TODO: enable bucket training
         self.enable_bucket = enable_bucket
         self.text_drop_ratio = text_drop_ratio
+        self.text_composition_mode = text_composition_mode
         self.enable_inpaint = enable_inpaint
         self.enable_camera_info = enable_camera_info
         self.return_file_name = return_file_name
@@ -959,7 +986,8 @@ class ImageVideoCameraDepthControlDataset(Dataset):
     
     def get_batch(self, idx):
         data_info = self.dataset[idx % len(self.dataset)]
-        video_id, text = data_info['file_path'], data_info['text']
+        video_id = data_info['file_path']
+        text = compose_training_text(data_info, self.text_composition_mode)
 
         if data_info.get('type', 'image')=='video':
             ###### process gt video ######
@@ -1108,7 +1136,7 @@ class ImageVideoCameraDepthControlDataset(Dataset):
             return pixel_values, depth_pixel_values, control_pixel_values, control_camera_values, text, "video", video_dir
 
         else:
-            image_path, text = data_info['file_path'], data_info['text']
+            image_path = data_info['file_path']
             if self.data_root is not None:
                 image_path = os.path.join(self.data_root, image_path)
             image = Image.open(image_path).convert('RGB')
@@ -1189,6 +1217,7 @@ class ImageVideoCameraControlDataset(Dataset):
         image_sample_size=512,
         video_repeat=0,
         text_drop_ratio=0.1,
+        text_composition_mode='original',
         enable_bucket=False,
         video_length_drop_start=0.1, 
         video_length_drop_end=0.9,
@@ -1202,7 +1231,8 @@ class ImageVideoCameraControlDataset(Dataset):
             with open(ann_path, 'r') as csvfile:
                 dataset = list(csv.DictReader(csvfile))
         elif ann_path.endswith('.json'):
-            dataset = json.load(open(ann_path))
+            with open(ann_path, 'r') as json_file:
+                dataset = json.load(json_file)
     
         self.data_root = data_root
 
@@ -1226,6 +1256,7 @@ class ImageVideoCameraControlDataset(Dataset):
         # TODO: enable bucket training
         self.enable_bucket = enable_bucket
         self.text_drop_ratio = text_drop_ratio
+        self.text_composition_mode = text_composition_mode
         self.enable_inpaint = enable_inpaint
         self.enable_camera_info = enable_camera_info
         self.return_file_name = return_file_name
@@ -1274,7 +1305,8 @@ class ImageVideoCameraControlDataset(Dataset):
     
     def get_batch(self, idx):
         data_info = self.dataset[idx % len(self.dataset)]
-        video_id, text = data_info['file_path'], data_info['text']
+        video_id = data_info['file_path']
+        text = compose_training_text(data_info, self.text_composition_mode)
 
         if data_info.get('type', 'image')=='video':
             ###### process gt video ######
@@ -1327,75 +1359,80 @@ class ImageVideoCameraControlDataset(Dataset):
                     text = ''
 
             ###### process render mask  ######
-            render_mask_id = data_info['render_mask_file_path']
-            
-            if self.data_root is None:
-                render_mask_id = render_mask_id
+            render_mask_id = data_info.get('render_mask_file_path')
+            if render_mask_id is None:
+                render_mask_values = None
             else:
-                render_mask_id = os.path.join(self.data_root, render_mask_id)
-            
-            with VideoReader_contextmanager(render_mask_id, num_threads=2) as mask_reader:
-                try:
-                    sample_args = (mask_reader, batch_index)
-                    render_mask_values = func_timeout(
-                        VIDEO_READER_TIMEOUT, get_video_reader_batch, args=sample_args
-                    )
-                    resized_frames = []
-                    for i in range(len(render_mask_values)):
-                        frame = render_mask_values[i]
-                        resized_frame = resize_frame_for_mask(frame, self.larger_side_of_image_and_video)
-                        resized_frames.append(resized_frame)
-                    render_mask_values = np.array(resized_frames)
-                except FunctionTimedOut:
-                    raise ValueError(f"Read {idx} timeout.")
-                except Exception as e:
-                    raise ValueError(f"Failed to extract frames from video. Error is {e}.")
-    
-                if not self.enable_bucket:
-                    render_mask_values = torch.from_numpy(render_mask_values).permute(0, 3, 1, 2).contiguous()
-                    render_mask_values = render_mask_values / 255.
-                    render_mask_values[render_mask_values < 0.5] = 0
-                    render_mask_values[render_mask_values >= 0.5] = 1
-                    del mask_reader
+                if self.data_root is None:
+                    render_mask_id = render_mask_id
                 else:
-                    render_mask_values = render_mask_values
+                    render_mask_id = os.path.join(self.data_root, render_mask_id)
+                
+                with VideoReader_contextmanager(render_mask_id, num_threads=2) as mask_reader:
+                    try:
+                        sample_args = (mask_reader, batch_index)
+                        render_mask_values = func_timeout(
+                            VIDEO_READER_TIMEOUT, get_video_reader_batch, args=sample_args
+                        )
+                        resized_frames = []
+                        for i in range(len(render_mask_values)):
+                            frame = render_mask_values[i]
+                            resized_frame = resize_frame_for_mask(frame, self.larger_side_of_image_and_video)
+                            resized_frames.append(resized_frame)
+                        render_mask_values = np.array(resized_frames)
+                    except FunctionTimedOut:
+                        raise ValueError(f"Read {idx} timeout.")
+                    except Exception as e:
+                        raise ValueError(f"Failed to extract frames from video. Error is {e}.")
+        
+                    if not self.enable_bucket:
+                        render_mask_values = torch.from_numpy(render_mask_values).permute(0, 3, 1, 2).contiguous()
+                        render_mask_values = render_mask_values / 255.
+                        render_mask_values[render_mask_values < 0.5] = 0
+                        render_mask_values[render_mask_values >= 0.5] = 1
+                        del mask_reader
+                    else:
+                        render_mask_values = render_mask_values
 
-                if not self.enable_bucket:
-                    render_mask_values = self.video_mask_transforms(render_mask_values)
+                    if not self.enable_bucket:
+                        render_mask_values = self.video_mask_transforms(render_mask_values)
             
             ###### process render video  ######
-            render_video_id = data_info['render_file_path']
-            if self.data_root is None:
-                render_video_id = render_video_id
+            render_video_id = data_info.get('render_file_path')
+            if render_video_id is None:
+                render_pixel_values = None
             else:
-                render_video_id = os.path.join(self.data_root, render_video_id)
-
-            with VideoReader_contextmanager(render_video_id, num_threads=2) as render_video_reader:
-                try:
-                    sample_args = (render_video_reader, batch_index)
-                    render_pixel_values = func_timeout(
-                        VIDEO_READER_TIMEOUT, get_video_reader_batch, args=sample_args
-                    )
-                    resized_frames = []
-                    for i in range(len(render_pixel_values)):
-                        frame = render_pixel_values[i]
-                        resized_frame = resize_frame(frame, self.larger_side_of_image_and_video)
-                        resized_frames.append(resized_frame)
-                    render_pixel_values = np.array(resized_frames)
-                except FunctionTimedOut:
-                    raise ValueError(f"Read {idx} timeout.")
-                except Exception as e:
-                    raise ValueError(f"Failed to extract frames from video. Error is {e}.")
-
-                if not self.enable_bucket:
-                    render_pixel_values = torch.from_numpy(render_pixel_values).permute(0, 3, 1, 2).contiguous()
-                    render_pixel_values = render_pixel_values / 255.
-                    del render_video_reader
+                if self.data_root is None:
+                    render_video_id = render_video_id
                 else:
-                    render_pixel_values = render_pixel_values
+                    render_video_id = os.path.join(self.data_root, render_video_id)
 
-                if not self.enable_bucket:
-                    render_pixel_values = self.video_transforms(render_pixel_values)
+                with VideoReader_contextmanager(render_video_id, num_threads=2) as render_video_reader:
+                    try:
+                        sample_args = (render_video_reader, batch_index)
+                        render_pixel_values = func_timeout(
+                            VIDEO_READER_TIMEOUT, get_video_reader_batch, args=sample_args
+                        )
+                        resized_frames = []
+                        for i in range(len(render_pixel_values)):
+                            frame = render_pixel_values[i]
+                            resized_frame = resize_frame(frame, self.larger_side_of_image_and_video)
+                            resized_frames.append(resized_frame)
+                        render_pixel_values = np.array(resized_frames)
+                    except FunctionTimedOut:
+                        raise ValueError(f"Read {idx} timeout.")
+                    except Exception as e:
+                        raise ValueError(f"Failed to extract frames from video. Error is {e}.")
+
+                    if not self.enable_bucket:
+                        render_pixel_values = torch.from_numpy(render_pixel_values).permute(0, 3, 1, 2).contiguous()
+                        render_pixel_values = render_pixel_values / 255.
+                        del render_video_reader
+                    else:
+                        render_pixel_values = render_pixel_values
+
+                    if not self.enable_bucket:
+                        render_pixel_values = self.video_transforms(render_pixel_values)
             
             ###### process camera traj ######
             control_video_id = data_info['control_file_path']
@@ -1460,7 +1497,7 @@ class ImageVideoCameraControlDataset(Dataset):
             return pixel_values, render_mask_values, render_pixel_values, control_pixel_values, control_camera_values, text, "video", video_dir
 
         else:
-            image_path, text = data_info['file_path'], data_info['text']
+            image_path = data_info['file_path']
             if self.data_root is not None:
                 image_path = os.path.join(self.data_root, image_path)
             image = Image.open(image_path).convert('RGB')
@@ -1500,11 +1537,18 @@ class ImageVideoCameraControlDataset(Dataset):
                 if data_type_local != data_type:
                     raise ValueError("data_type_local != data_type")
 
-                pixel_values, render_mask_values, render_pixel_values, control_pixel_values, control_camera_values, name, data_type, file_path = self.get_batch(idx)
+                batch = self.get_batch(idx)
+
+                if data_type == 'video':
+                    pixel_values, render_mask_values, render_pixel_values, control_pixel_values, control_camera_values, name, data_type, file_path = batch
+                    sample["render_mask_values"] = render_mask_values
+                    sample["render_pixel_values"] = render_pixel_values
+                else:
+                    pixel_values, control_pixel_values, control_camera_values, name, data_type, file_path = batch
+                    sample["render_mask_values"] = None
+                    sample["render_pixel_values"] = None
 
                 sample["pixel_values"] = pixel_values
-                sample["render_mask_values"] = render_mask_values
-                sample["render_pixel_values"] = render_pixel_values
                 sample["control_pixel_values"] = control_pixel_values
                 sample["text"] = name
                 sample["data_type"] = data_type
@@ -1543,6 +1587,7 @@ class ImageVideoCameraInpControlDataset(Dataset):
         image_sample_size=512,
         video_repeat=0,
         text_drop_ratio=0.1,
+        text_composition_mode='original',
         enable_bucket=False,
         video_length_drop_start=0.1, 
         video_length_drop_end=0.9,
@@ -1556,7 +1601,8 @@ class ImageVideoCameraInpControlDataset(Dataset):
             with open(ann_path, 'r') as csvfile:
                 dataset = list(csv.DictReader(csvfile))
         elif ann_path.endswith('.json'):
-            dataset = json.load(open(ann_path))
+            with open(ann_path, 'r') as json_file:
+                dataset = json.load(json_file)
     
         self.data_root = data_root
 
@@ -1580,6 +1626,7 @@ class ImageVideoCameraInpControlDataset(Dataset):
         # TODO: enable bucket training
         self.enable_bucket = enable_bucket
         self.text_drop_ratio = text_drop_ratio
+        self.text_composition_mode = text_composition_mode
         self.enable_inpaint = enable_inpaint
         self.enable_camera_info = enable_camera_info
         self.return_file_name = return_file_name
@@ -1628,7 +1675,8 @@ class ImageVideoCameraInpControlDataset(Dataset):
     
     def get_batch(self, idx):
         data_info = self.dataset[idx % len(self.dataset)]
-        video_id, text = data_info['file_path'], data_info['text']
+        video_id = data_info['file_path']
+        text = compose_training_text(data_info, self.text_composition_mode)
 
         if data_info.get('type', 'image')=='video':
             ###### process gt video ######
@@ -1816,7 +1864,7 @@ class ImageVideoCameraInpControlDataset(Dataset):
             return pixel_values, render_mask_values, render_pixel_values, control_pixel_values, control_camera_values, text, "video", video_dir
 
         else:
-            image_path, text = data_info['file_path'], data_info['text']
+            image_path = data_info['file_path']
             if self.data_root is not None:
                 image_path = os.path.join(self.data_root, image_path)
             image = Image.open(image_path).convert('RGB')
@@ -1901,7 +1949,8 @@ class ImageVideoSafetensorsDataset(Dataset):
         # Loading annotations from files
         print(f"loading annotations from {ann_path} ...")
         if ann_path.endswith('.json'):
-            dataset = json.load(open(ann_path))
+            with open(ann_path, 'r') as json_file:
+                dataset = json.load(json_file)
 
         self.data_root = data_root
         self.dataset = dataset
